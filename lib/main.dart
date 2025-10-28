@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
 
 // Simple loading / splash screen that shows an image for 3 seconds then navigates.
 class LoadingScreen extends StatefulWidget {
-  const LoadingScreen({Key? key}) : super(key: key);
+  const LoadingScreen({super.key});
 
   @override
   State<LoadingScreen> createState() => _LoadingScreenState();

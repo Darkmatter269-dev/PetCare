@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/pet.dart';
+import '../models/pet_store.dart';
 
 class PetInfoPage extends StatelessWidget {
   final Pet pet;
@@ -7,6 +11,10 @@ class PetInfoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final current = context.select<PetStore, Pet?>(
+      (store) => store.byId(pet.id),
+    ) ?? pet;
+
     return Scaffold(
       // AppBar with explicit back-to-home button
       appBar: AppBar(
@@ -30,13 +38,26 @@ class PetInfoPage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 6))]),
             child: Row(children: [
-              CircleAvatar(radius: 38, backgroundColor: pet.avatarColor, child: Text(pet.name.isEmpty ? '' : pet.name[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700))),
+              CircleAvatar(
+                radius: 38,
+                backgroundColor: current.avatarColor,
+                child: (current.photoPath != null && File(current.photoPath!).existsSync())
+                    ? ClipOval(
+                        child: Image.file(
+                          File(current.photoPath!),
+                          width: 76,
+                          height: 76,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Text(current.name.isEmpty ? '' : current.name[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(pet.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                  Text(current.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 6),
-                  Text(pet.breed.isEmpty ? 'Unknown breed' : pet.breed, style: TextStyle(color: Colors.grey[600])),
+                  Text(current.breed.isEmpty ? 'Unknown breed' : current.breed, style: TextStyle(color: Colors.grey[600])),
                 ]),
               ),
             ]),

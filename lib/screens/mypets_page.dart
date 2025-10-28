@@ -4,6 +4,9 @@ import '../models/pet_store.dart';
 import '../models/pet.dart';
 import 'pet_info_page.dart';
 import 'dart:math';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 class MyPetsPage extends StatelessWidget {
   const MyPetsPage({super.key});
@@ -89,10 +92,19 @@ class MyPetsPage extends StatelessWidget {
                                       CircleAvatar(
                                         radius: 28,
                                         backgroundColor: p.avatarColor,
-                                        child: Text(
-                                          _initials(p.name),
-                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-                                        ),
+                                        child: (p.photoPath != null && File(p.photoPath!).existsSync())
+                                            ? ClipOval(
+                                                child: Image.file(
+                                                  File(p.photoPath!),
+                                                  width: 56,
+                                                  height: 56,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            : Text(
+                                                _initials(p.name),
+                                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                                              ),
                                       ),
                                       const SizedBox(width: 14),
                                       Expanded(
@@ -256,6 +268,7 @@ class _AddPetFormState extends State<_AddPetForm> {
   final _weight = TextEditingController();
   String _gender = 'Male';
   Color _avatarColor = const Color(0xFF97E8C6);
+  String? _photoPath;
   final _formKey = GlobalKey<FormState>();
 
   static const _genderOptions = ['Male', 'Female'];
@@ -284,18 +297,27 @@ class _AddPetFormState extends State<_AddPetForm> {
             Center(
               child: Column(children: [
                 GestureDetector(
-                  onTap: _chooseAvatarColor,
+                  onTap: _pickImageFromGallery,
                   child: CircleAvatar(
                     radius: 38,
                     backgroundColor: _avatarColor,
-                    child: Text(
-                      MyPetsPage._initials(_name.text.isEmpty ? 'Pet' : _name.text),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20),
-                    ),
+                    child: _photoPath != null && File(_photoPath!).existsSync()
+                        ? ClipOval(
+                            child: Image.file(
+                              File(_photoPath!),
+                              width: 76,
+                              height: 76,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Text(
+                            MyPetsPage._initials(_name.text.isEmpty ? 'Pet' : _name.text),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text('+ Add Photo', style: TextStyle(color: Colors.black54)),
+                const Text('+ Add Photo (tap avatar)', style: TextStyle(color: Colors.black54)),
               ]),
             ),
             const SizedBox(height: 12),
@@ -372,6 +394,27 @@ class _AddPetFormState extends State<_AddPetForm> {
     setState(() => _avatarColor = colors[Random().nextInt(colors.length)]);
   }
 
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? file = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1200);
+      if (file == null) return;
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final filename = 'pet_${DateTime.now().millisecondsSinceEpoch}${pathExtension(file.path)}';
+      final saved = await File(file.path).copy('${appDir.path}/$filename');
+      setState(() => _photoPath = saved.path);
+    } catch (e) {
+      // ignore errors for now
+      debugPrint('Image pick error: $e');
+    }
+  }
+
+  String pathExtension(String p) {
+    final idx = p.lastIndexOf('.');
+    return idx == -1 ? '' : p.substring(idx);
+  }
+
   void _save() {
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final pet = Pet(
@@ -384,6 +427,7 @@ class _AddPetFormState extends State<_AddPetForm> {
       height: _height.text.trim(),
       weight: _weight.text.trim(),
       avatarColor: _avatarColor,
+      photoPath: _photoPath,
     );
     context.read<PetStore>().add(pet);
     Navigator.of(context).pop();
@@ -407,6 +451,7 @@ class _EditPetFormState extends State<_EditPetForm> {
   late final TextEditingController _weight;
   String _gender = 'Male';
   late Color _avatarColor;
+  String? _photoPath;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -421,6 +466,7 @@ class _EditPetFormState extends State<_EditPetForm> {
     _weight = TextEditingController(text: p.weight);
     _gender = p.gender.isEmpty ? 'Male' : p.gender;
     _avatarColor = p.avatarColor;
+    _photoPath = p.photoPath;
   }
 
   @override
@@ -457,18 +503,27 @@ class _EditPetFormState extends State<_EditPetForm> {
             Center(
               child: Column(children: [
                 GestureDetector(
-                  onTap: _chooseAvatarColor,
+                  onTap: _pickImageFromGallery,
                   child: CircleAvatar(
                     radius: 38,
                     backgroundColor: _avatarColor,
-                    child: Text(
-                      MyPetsPage._initials(_name.text.isEmpty ? 'Pet' : _name.text),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20),
-                    ),
+                    child: _photoPath != null && File(_photoPath!).existsSync()
+                        ? ClipOval(
+                            child: Image.file(
+                              File(_photoPath!),
+                              width: 76,
+                              height: 76,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Text(
+                            MyPetsPage._initials(_name.text.isEmpty ? 'Pet' : _name.text),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text('+ Change Photo', style: TextStyle(color: Colors.black54)),
+                const Text('+ Change Photo (tap avatar)', style: TextStyle(color: Colors.black54)),
               ]),
             ),
             const SizedBox(height: 12),
@@ -554,9 +609,30 @@ class _EditPetFormState extends State<_EditPetForm> {
       height: _height.text.trim(),
       weight: _weight.text.trim(),
       avatarColor: _avatarColor,
+      photoPath: _photoPath,
     );
     context.read<PetStore>().update(updated);
     Navigator.of(context).pop();
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? file = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1200);
+      if (file == null) return;
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final filename = 'pet_${DateTime.now().millisecondsSinceEpoch}${pathExtension(file.path)}';
+      final saved = await File(file.path).copy('${appDir.path}/$filename');
+      setState(() => _photoPath = saved.path);
+    } catch (e) {
+      debugPrint('Image pick error: $e');
+    }
+  }
+
+  String pathExtension(String p) {
+    final idx = p.lastIndexOf('.');
+    return idx == -1 ? '' : p.substring(idx);
   }
 }
 

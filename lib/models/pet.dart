@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class Pet {
   final String id;
   String name;
+  String? photoPath;
   String breed;
   String gender;
   String age;
@@ -15,6 +16,7 @@ class Pet {
   Pet({
     required this.id,
     required this.name,
+    this.photoPath,
     this.breed = '',
     this.gender = '',
     this.age = '',
