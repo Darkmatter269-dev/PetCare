@@ -59,9 +59,7 @@ Listed in `pubspec.yaml` (examples):
 - Permission denied for contacts: check the Android manifest has `<uses-permission android:name="android.permission.READ_CONTACTS"/>`, then accept the runtime prompt or enable permissions in OS settings.
 - Gradle/build errors from old plugins: run `flutter pub upgrade` or replace plugins that use the v1 Android embedding.
 
-## Want CI or persistence?
-- I can add a small GitHub Actions workflow to run `flutter analyze` and `flutter test`.
-- If you want saved contacts/pets across app restarts, I can add Hive persistence.
+
 
 ---
 
