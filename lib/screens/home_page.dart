@@ -61,11 +61,6 @@ class HomePage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Arduino Connected',
-                          style: TextStyle(fontSize: 13, color: Colors.black54),
-                        ),
                       ],
                     ),
                   ],
@@ -159,7 +154,31 @@ class HomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                // Schedules or placeholder
+                // If there are no schedules, show Alerts immediately under the
+                // Today's Schedule header. When schedules exist the Alerts header
+                // will be rendered as a footer inside the schedule list so it
+                // appears after the schedule items.
+                if (todayList.isEmpty) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Alerts',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pushNamed('/alerts'),
+                        child: const Text('View All', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+
+                // Schedules or placeholder. If there are schedules, render the Alerts
+                // header as a footer inside the scrollable list so it appears directly
+                // below the schedule items. If there are no schedules, keep Alerts
+                // below the placeholder (rendered after Expanded).
                 Expanded(
                   child: todayList.isEmpty
                       ? Center(
@@ -171,14 +190,40 @@ class HomePage extends StatelessWidget {
                         )
                       : ListView.separated(
                           padding: EdgeInsets.zero,
-                          itemCount: todayList.length,
+                          itemCount: todayList.length + 1, // extra footer for Alerts
                           separatorBuilder: (_, __) => const SizedBox(height: 12),
                           itemBuilder: (_, i) {
-                            final s = todayList[i];
-                            return _HomeScheduleCard(schedule: s);
+                            if (i < todayList.length) {
+                              final s = todayList[i];
+                              return _HomeScheduleCard(schedule: s);
+                            }
+                            // Footer: Alerts header (appears after schedules)
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Alerts',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pushNamed('/alerts'),
+                                      child: const Text('View All', style: TextStyle(fontWeight: FontWeight.w600)),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                            );
                           },
                         ),
                 ),
+
+                // no additional footer here; Alerts is either shown above (when
+                // no schedules) or included inside the list (when schedules exist).
               ],
             ),
           ),
