@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/pet.dart';
 import '../models/pet_store.dart';
+import 'vet_log_page.dart';
 
 class PetInfoPage extends StatelessWidget {
   final Pet pet;
@@ -75,6 +76,23 @@ class PetInfoPage extends StatelessWidget {
                 const Text('Notes', style: TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
                 Text(pet.notes.isEmpty ? 'No notes' : pet.notes, style: TextStyle(color: Colors.grey[700])),
+                const SizedBox(height: 18),
+                // View Vet Log button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // navigate to Vet Log page for this pet
+                    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => VetLogPage(pet: current)));
+                  },
+                  icon: const Icon(Icons.medical_information),
+                  label: const Text('View Vet Log'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+                    elevation: 3,
+                  ),
+                ),
               ],
             ),
           ),
