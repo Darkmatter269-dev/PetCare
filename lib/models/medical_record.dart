@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class MedicalRecord {
   final DateTime dateOfVisit;
   final String vetName;
