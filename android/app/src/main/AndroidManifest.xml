@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Declare USB host feature so devices that don't support OTG can be filtered -->
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+    <!-- Permission to communicate with USB devices (granted by user per device) -->
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
     <!-- App permissions: declare any runtime permissions your app may request -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />

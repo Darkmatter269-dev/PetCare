@@ -39,7 +39,17 @@ class MyPetsPage extends StatelessWidget {
                         alignment: Alignment.center,
                         child: const Text('MyPets', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
                       ),
-                      // (Removed) Arduino connected indicator
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(width: 10, height: 10, decoration: BoxDecoration(color: mintB, shape: BoxShape.circle)),
+                            const SizedBox(width: 8),
+                            const Text('Arduino Connected', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                          ],
+                        ),
+                      ),
                       // optional left back button (go to home)
                       Align(
                         alignment: Alignment.centerLeft,

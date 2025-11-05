@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/schedule_store.dart';
 import '../models/schedule.dart';
 import 'contact_page.dart'; // <--- add this import
+import '../models/alert_store.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -17,6 +18,8 @@ class HomePage extends StatelessWidget {
     final store = context.watch<ScheduleStore>();
     final today = DateTime.now();
     final todayList = store.forDate(today);
+  final alertStore = context.watch<AlertStore>();
+  final alerts = alertStore.alerts;
 
     return Scaffold(
       body: Container(
@@ -173,6 +176,18 @@ class HomePage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
+                  // show a small preview of recent alerts
+                  if (alerts.isNotEmpty)
+                    Column(
+                      children: alerts.take(2).map((a) {
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(a.title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                          subtitle: Text(a.message, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          trailing: Text(a.timestamp.hour.toString().padLeft(2, '0')),
+                        );
+                      }).toList(),
+                    ),
                 ],
 
                 // Schedules or placeholder. If there are schedules, render the Alerts
@@ -216,6 +231,17 @@ class HomePage extends StatelessWidget {
                                   ],
                                 ),
                                 const SizedBox(height: 8),
+                                if (alerts.isNotEmpty)
+                                  Column(
+                                    children: alerts.take(2).map((a) {
+                                      return ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Text(a.title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                                        subtitle: Text(a.message, maxLines: 1, overflow: TextOverflow.ellipsis),
+                                        trailing: Text(a.timestamp.hour.toString().padLeft(2, '0')),
+                                      );
+                                    }).toList(),
+                                  ),
                               ],
                             );
                           },

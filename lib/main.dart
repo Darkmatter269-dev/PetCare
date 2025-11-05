@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'models/schedule_store.dart';
 import 'models/pet_store.dart';
+import 'models/alert_store.dart';
+import 'models/alert.dart';
+import 'services/serial_service.dart';
 import 'screens/auth_page.dart';
 import 'screens/getting_started_page.dart';
 import 'screens/home_page.dart';
@@ -10,19 +14,35 @@ import 'screens/calendar_page.dart';
 import 'screens/alerts_page.dart';
 import 'screens/contact_page.dart'; 
 
-void main() => runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(AlertAdapter());
+  await Hive.openBox<Alert>('alerts');
+
+  final alertStore = await AlertStore.open();
+
+  // Start the serial service (it will fall back to simulation when no device)
+  final serial = SerialService(alertStore);
+  serial.start();
+
+  runApp(MyApp(alertStore: alertStore));
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AlertStore alertStore;
+  const MyApp({super.key, required this.alertStore});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ScheduleStore()),
         ChangeNotifierProvider(create: (_) => PetStore()),
+        ChangeNotifierProvider<AlertStore>.value(value: alertStore),
       ],
       child: MaterialApp(
-        title: 'PetCare', // changed app name
+        title: 'PetCare',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(primarySwatch: Colors.green),
         home: const LoadingScreen(),
